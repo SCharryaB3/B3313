@@ -5,7 +5,7 @@ include util.mk
 # Default target
 default: all
 
-TARGET_STRING := sm64
+TARGET_STRING := b3313decomp
 
 # Preprocessor definitions
 DEFINES :=

@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#define LERP(a, b, c) a = a + c * (b - a);
+
 void play_flip_sounds(struct MarioState *m, s16 frame1, s16 frame2, s16 frame3) {
     s32 animFrame = m->marioObj->header.gfx.animInfo.animFrame;
     if (animFrame == frame1 || animFrame == frame2 || animFrame == frame3) {
@@ -326,6 +328,15 @@ void update_flying(struct MarioState *m) {
         m->forwardVel = 0.0f;
     }
 
+	// ADD: mario "p-wing"
+	// in beta, Mario could fly simply by shooting out of a cannon
+	// so let's give the wing cap an actual use
+    if (m->flags & MARIO_WING_CAP) {
+        m->particleFlags |= PARTICLE_SPARKLES;
+        LERP(m->forwardVel, 36.0f, 0.05f);
+    }
+	// END ADD
+
     if (m->forwardVel > 16.0f) {
         m->faceAngle[0] += (m->forwardVel - 32.0f) * 6.0f;
     } else if (m->forwardVel > 4.0f) {
@@ -336,11 +347,11 @@ void update_flying(struct MarioState *m) {
 
     m->faceAngle[0] += m->angleVel[0];
 
-    if (m->faceAngle[0] > DEGREES(60)) {
-        m->faceAngle[0] = DEGREES(60);
+    if (m->faceAngle[0] > 0x2AAA) {
+        m->faceAngle[0] = 0x2AAA;
     }
-    if (m->faceAngle[0] < -DEGREES(60)) {
-        m->faceAngle[0] = -DEGREES(60);
+    if (m->faceAngle[0] < -0x2AAA) {
+        m->faceAngle[0] = -0x2AAA;
     }
 
     m->vel[0] = m->forwardVel * coss(m->faceAngle[0]) * sins(m->faceAngle[1]);
@@ -350,6 +361,7 @@ void update_flying(struct MarioState *m) {
     m->slideVelX = m->vel[0];
     m->slideVelZ = m->vel[2];
 }
+
 
 u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, u32 stepArg) {
     u32 stepResult;

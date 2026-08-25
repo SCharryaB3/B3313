@@ -16,6 +16,7 @@
 #include "sound_init.h"
 #include "surface_terrains.h"
 #include "rumble_init.h"
+#include "personalization_helpers.h"
 
 s32 check_common_idle_cancels(struct MarioState *m) {
     mario_drop_held_object(m);
@@ -120,29 +121,27 @@ s32 act_idle(struct MarioState *m) {
         return TRUE;
     }
 
-    if (m->actionState == ACT_STATE_IDLE_RESET_OR_SLEEP) {
-#ifndef NO_SLEEP
+    if (m->actionState == 3) {
         if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SNOW) {
             return set_mario_action(m, ACT_SHIVERING, 0);
         } else {
             return set_mario_action(m, ACT_START_SLEEPING, 0);
         }
-#endif
     }
 
     if (m->actionArg & 1) {
         set_mario_animation(m, MARIO_ANIM_STAND_AGAINST_WALL);
     } else {
         switch (m->actionState) {
-            case ACT_STATE_IDLE_HEAD_LEFT:
+            case 0:
                 set_mario_animation(m, MARIO_ANIM_IDLE_HEAD_LEFT);
                 break;
 
-            case ACT_STATE_IDLE_HEAD_RIGHT:
+            case 1:
                 set_mario_animation(m, MARIO_ANIM_IDLE_HEAD_RIGHT);
                 break;
 
-            case ACT_STATE_IDLE_HEAD_CENTER:
+            case 2:
                 set_mario_animation(m, MARIO_ANIM_IDLE_HEAD_CENTER);
                 break;
         }
@@ -150,27 +149,26 @@ s32 act_idle(struct MarioState *m) {
         if (is_anim_at_end(m)) {
             // Fall asleep after 10 head turning cycles.
             // act_start_sleeping is triggered earlier in the function
-            // when actionState == ACT_STATE_IDLE_RESET_OR_SLEEP. This
-            // happens when Mario's done turning his head back and forth.
-            // However, we do some checks here to make sure that Mario
-            // would be able to sleep here, and that he's gone through
-            // 10 cycles before sleeping.
+            // when actionState == 3. This happens when Mario's done
+            // turning his head back and forth. However, we do some checks
+            // here to make sure that Mario would be able to sleep here,
+            // and that he's gone through 10 cycles before sleeping.
             // actionTimer is used to track how many cycles have passed.
-            if (++m->actionState == ACT_STATE_IDLE_RESET_OR_SLEEP) {
-#ifdef NO_SLEEP
-                m->actionState = ACT_STATE_IDLE_HEAD_LEFT;
-#else
+            if (++m->actionState == 3) {
                 f32 deltaYOfFloorBehindMario = m->pos[1] - find_floor_height_relative_polar(m, -0x8000, 60.0f);
                 if (deltaYOfFloorBehindMario < -24.0f || 24.0f < deltaYOfFloorBehindMario || m->floor->flags & SURFACE_FLAG_DYNAMIC) {
-                    m->actionState = ACT_STATE_IDLE_HEAD_LEFT;
+                    m->actionState = 0;
                 } else {
                     // If Mario hasn't turned his head 10 times yet, stay idle instead of going to sleep.
-                    m->actionTimer++;
+                    /*m->actionTimer++;
                     if (m->actionTimer < 10) {
-                        m->actionState = ACT_STATE_IDLE_HEAD_LEFT;
-                    }
+                        m->actionState = 0;
+                    }*/
                 }
-#endif
+                
+                // Trigger elecwait :trol:
+                if (m->floor->type == SURFACE_ELECTRIC)
+					return hurt_and_set_mario_action(m, ACT_ELECTRIC_FLOOR_IDLE, 0, 4);
             }
         }
     }
@@ -544,6 +542,10 @@ s32 act_panting(struct MarioState *m) {
         return set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
+    if (m->floor->type == SURFACE_ELECTRIC && m->actionTimer >= 4) {
+		return hurt_and_set_mario_action(m, ACT_ELECTRIC_FLOOR_IDLE, 0, 4);
+	}
+
     if (m->health >= 0x500) {
         return set_mario_action(m, ACT_IDLE, 0);
     }
@@ -553,14 +555,14 @@ s32 act_panting(struct MarioState *m) {
     }
 
     if (set_mario_animation(m, MARIO_ANIM_WALK_PANTING) == 1) {
-        play_sound(SOUND_MARIO_PANTING + ((gAudioRandom % 3U) << 0x10),
-                   m->marioObj->header.gfx.cameraToObject);
+        m->actionTimer++;
     }
 
     stationary_ground_step(m);
     m->marioBodyState->eyeState = MARIO_EYES_HALF_CLOSED;
     return FALSE;
 }
+
 
 s32 act_hold_panting_unused(struct MarioState *m) {
     if (m->marioObj->oInteractStatus & INT_STATUS_MARIO_DROP_OBJECT) {
@@ -1083,53 +1085,48 @@ s32 check_common_stationary_cancels(struct MarioState *m) {
 s32 mario_execute_stationary_action(struct MarioState *m) {
     s32 cancel;
 
-    if (check_common_stationary_cancels(m)) {
-        return TRUE;
-    }
-
-    if (mario_update_quicksand(m, 0.5f)) {
+    if (check_common_stationary_cancels(m) || mario_update_quicksand(m, 0.5f)) {
         return TRUE;
     }
 
     /* clang-format off */
     switch (m->action) {
-        case ACT_IDLE:                    cancel = act_idle(m);                             break;
-        case ACT_START_SLEEPING:          cancel = act_start_sleeping(m);                   break;
-        case ACT_SLEEPING:                cancel = act_sleeping(m);                         break;
-        case ACT_WAKING_UP:               cancel = act_waking_up(m);                        break;
-        case ACT_PANTING:                 cancel = act_panting(m);                          break;
-        case ACT_HOLD_PANTING_UNUSED:     cancel = act_hold_panting_unused(m);              break;
-        case ACT_HOLD_IDLE:               cancel = act_hold_idle(m);                        break;
-        case ACT_HOLD_HEAVY_IDLE:         cancel = act_hold_heavy_idle(m);                  break;
-        case ACT_IN_QUICKSAND:            cancel = act_in_quicksand(m);                     break;
-        case ACT_STANDING_AGAINST_WALL:   cancel = act_standing_against_wall(m);            break;
-        case ACT_COUGHING:                cancel = act_coughing(m);                         break;
-        case ACT_SHIVERING:               cancel = act_shivering(m);                        break;
-        case ACT_CROUCHING:               cancel = act_crouching(m);                        break;
-        case ACT_START_CROUCHING:         cancel = act_start_crouching(m);                  break;
-        case ACT_STOP_CROUCHING:          cancel = act_stop_crouching(m);                   break;
-        case ACT_START_CRAWLING:          cancel = act_start_crawling(m);                   break;
-        case ACT_STOP_CRAWLING:           cancel = act_stop_crawling(m);                    break;
-        case ACT_SLIDE_KICK_SLIDE_STOP:   cancel = act_slide_kick_slide_stop(m);            break;
-        case ACT_SHOCKWAVE_BOUNCE:        cancel = act_shockwave_bounce(m);                 break;
-        case ACT_FIRST_PERSON:            cancel = act_first_person(m);                     break;
-        case ACT_JUMP_LAND_STOP:          cancel = act_jump_land_stop(m);                   break;
-        case ACT_DOUBLE_JUMP_LAND_STOP:   cancel = act_double_jump_land_stop(m);            break;
-        case ACT_FREEFALL_LAND_STOP:      cancel = act_freefall_land_stop(m);               break;
-        case ACT_SIDE_FLIP_LAND_STOP:     cancel = act_side_flip_land_stop(m);              break;
-        case ACT_HOLD_JUMP_LAND_STOP:     cancel = act_hold_jump_land_stop(m);              break;
-        case ACT_HOLD_FREEFALL_LAND_STOP: cancel = act_hold_freefall_land_stop(m);          break;
-        case ACT_AIR_THROW_LAND:          cancel = act_air_throw_land(m);                   break;
-        case ACT_LAVA_BOOST_LAND:         cancel = act_lava_boost_land(m);                  break;
-        case ACT_TWIRL_LAND:              cancel = act_twirl_land(m);                       break;
-        case ACT_TRIPLE_JUMP_LAND_STOP:   cancel = act_triple_jump_land_stop(m);            break;
-        case ACT_BACKFLIP_LAND_STOP:      cancel = act_backflip_land_stop(m);               break;
-        case ACT_LONG_JUMP_LAND_STOP:     cancel = act_long_jump_land_stop(m);              break;
-        case ACT_GROUND_POUND_LAND:       cancel = act_ground_pound_land(m);                break;
-        case ACT_BRAKING_STOP:            cancel = act_braking_stop(m);                     break;
-        case ACT_BUTT_SLIDE_STOP:         cancel = act_butt_slide_stop(m);                  break;
-        case ACT_HOLD_BUTT_SLIDE_STOP:    cancel = act_hold_butt_slide_stop(m);             break;
-        default:                          cancel = TRUE;                                    break;
+        case ACT_IDLE:                    cancel = act_idle(m); break;
+        case ACT_START_SLEEPING:          cancel = act_start_sleeping(m); break;
+        case ACT_SLEEPING:                cancel = act_sleeping(m); break;
+        case ACT_WAKING_UP:               cancel = act_waking_up(m); break;
+        case ACT_PANTING:                 cancel = act_panting(m); break;
+        case ACT_ELECTRIC_FLOOR_IDLE:     cancel = act_electric_idle(m); break;
+        case ACT_HOLD_IDLE:               cancel = act_hold_idle(m); break;
+        case ACT_HOLD_HEAVY_IDLE:         cancel = act_hold_heavy_idle(m); break;
+        case ACT_IN_QUICKSAND:            cancel = act_in_quicksand(m); break;
+        case ACT_STANDING_AGAINST_WALL:   cancel = act_standing_against_wall(m); break;
+        case ACT_COUGHING:                cancel = act_coughing(m); break;
+        case ACT_SHIVERING:               cancel = act_shivering(m); break;
+        case ACT_CROUCHING:               cancel = act_crouching(m); break;
+        case ACT_START_CROUCHING:         cancel = act_start_crouching(m); break;
+        case ACT_STOP_CROUCHING:          cancel = act_stop_crouching(m); break;
+        case ACT_START_CRAWLING:          cancel = act_start_crawling(m); break;
+        case ACT_STOP_CRAWLING:           cancel = act_stop_crawling(m); break;
+        case ACT_SLIDE_KICK_SLIDE_STOP:   cancel = act_slide_kick_slide_stop(m); break;
+        case ACT_SHOCKWAVE_BOUNCE:        cancel = act_shockwave_bounce(m); break;
+        case ACT_FIRST_PERSON:            cancel = act_first_person(m); break;
+        case ACT_JUMP_LAND_STOP:          cancel = act_jump_land_stop(m); break;
+        case ACT_DOUBLE_JUMP_LAND_STOP:   cancel = act_double_jump_land_stop(m); break;
+        case ACT_FREEFALL_LAND_STOP:      cancel = act_freefall_land_stop(m); break;
+        case ACT_SIDE_FLIP_LAND_STOP:     cancel = act_side_flip_land_stop(m); break;
+        case ACT_HOLD_JUMP_LAND_STOP:     cancel = act_hold_jump_land_stop(m); break;
+        case ACT_HOLD_FREEFALL_LAND_STOP: cancel = act_hold_freefall_land_stop(m); break;
+        case ACT_AIR_THROW_LAND:          cancel = act_air_throw_land(m); break;
+        case ACT_LAVA_BOOST_LAND:         cancel = act_lava_boost_land(m); break;
+        case ACT_TWIRL_LAND:              cancel = act_twirl_land(m); break;
+        case ACT_TRIPLE_JUMP_LAND_STOP:   cancel = act_triple_jump_land_stop(m); break;
+        case ACT_BACKFLIP_LAND_STOP:      cancel = act_backflip_land_stop(m); break;
+        case ACT_LONG_JUMP_LAND_STOP:     cancel = act_long_jump_land_stop(m); break;
+        case ACT_GROUND_POUND_LAND:       cancel = act_ground_pound_land(m); break;
+        case ACT_BRAKING_STOP:            cancel = act_braking_stop(m); break;
+        case ACT_BUTT_SLIDE_STOP:         cancel = act_butt_slide_stop(m); break;
+        case ACT_HOLD_BUTT_SLIDE_STOP:    cancel = act_hold_butt_slide_stop(m); break;
     }
     /* clang-format on */
 
