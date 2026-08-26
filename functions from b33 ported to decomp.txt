@@ -10,3 +10,6 @@ TROLLENGINE/
 	AI/
 		personalization_helpers.c: working on it
 		personalization_helpers.h: working on it
+
+
+todo: replace ACT_CLIMBING_WALL with the actual thing, not just placeholder
