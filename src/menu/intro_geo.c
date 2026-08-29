@@ -33,86 +33,30 @@ struct GraphNodeMore {
 // intro geo bss
 static s32 sGameOverFrameCounter;
 static s32 sGameOverTableIndex;
-static s16 sIntroFrameCounter;
-static s32 sTmCopyrightAlpha;
+// static s16 sIntroFrameCounter;   // UNUSED
+// static s32 sTmCopyrightAlpha;    // UNUSED
 
 /**
  * Geo callback to render the "Super Mario 64" logo on the title screen
  */
-Gfx *geo_intro_super_mario_64_logo(s32 callContext, struct GraphNode *node, UNUSED void *context) {
+Gfx *geo_intro_super_mario_64_logo(s32 state, struct GraphNode *node, UNUSED void *context) {
     struct GraphNode *graphNode = node;
     Gfx *dl = NULL;
     Gfx *dlIter = NULL;
+    Mtx *scaleMat;
 
-    if (callContext != GEO_CONTEXT_RENDER) {
-        sIntroFrameCounter = 0;
-    } else if (callContext == GEO_CONTEXT_RENDER) {
-        f32 *scaleTable1 = segmented_to_virtual(intro_seg7_table_scale_1);
-        f32 *scaleTable2 = segmented_to_virtual(intro_seg7_table_scale_2);
-        SET_GRAPH_NODE_LAYER(graphNode->flags, LAYER_OPAQUE);
-        Mtx *scaleMat = alloc_display_list(sizeof(*scaleMat));
+    if (state == 1) {
+        graphNode->flags = (graphNode->flags & 0xFF) | (LAYER_OPAQUE << 8);
+        scaleMat = alloc_display_list(sizeof(*scaleMat));
         dl = alloc_display_list(4 * sizeof(*dl));
         dlIter = dl;
-        Vec3f scale;
 
-        // determine scale based on the frame counter
-        if (sIntroFrameCounter >= 0 && sIntroFrameCounter < INTRO_STEPS_ZOOM_IN) {
-            // zooming in
-            vec3f_copy(scale, &scaleTable1[sIntroFrameCounter * 3]);
-        } else if (sIntroFrameCounter >= INTRO_STEPS_ZOOM_IN && sIntroFrameCounter < INTRO_STEPS_HOLD_1) {
-            // holding
-            vec3_same(scale, 1.0f);
-        } else if (sIntroFrameCounter >= INTRO_STEPS_HOLD_1 && sIntroFrameCounter < INTRO_STEPS_ZOOM_OUT) {
-            // zooming out
-            vec3f_copy(scale, &scaleTable2[(sIntroFrameCounter - INTRO_STEPS_HOLD_1) * 3]);
-        } else {
-            // disappeared
-            vec3_zero(scale);
-        }
-        guScale(scaleMat, scale[0], scale[1], scale[2]);
+        guScale(scaleMat, 2.5f, 2.5f, 0.0f);
 
         gSPMatrix(dlIter++, scaleMat, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-        gSPDisplayList(dlIter++, &intro_seg7_dl_main_logo);  // draw model
+        gSPDisplayList(dlIter++, &gfx_nintendo_logo); // draw model
         gSPPopMatrix(dlIter++, G_MTX_MODELVIEW);
         gSPEndDisplayList(dlIter);
-
-        sIntroFrameCounter++;
-    }
-    return dl;
-}
-
-/**
- * Geo callback to render TM and Copyright on the title screen
- */
-Gfx *geo_intro_tm_copyright(s32 callContext, struct GraphNode *node, UNUSED void *context) {
-    struct GraphNode *graphNode = node;
-    Gfx *dl = NULL;
-    Gfx *dlIter = NULL;
-
-    if (callContext != GEO_CONTEXT_RENDER) { // reset
-        sTmCopyrightAlpha = 0;
-    } else if (callContext == GEO_CONTEXT_RENDER) { // draw
-        dl = alloc_display_list(5 * sizeof(*dl));
-        dlIter = dl;
-        gSPDisplayList(dlIter++, dl_proj_mtx_fullscreen);
-        gDPSetEnvColor(dlIter++, 255, 255, 255, sTmCopyrightAlpha);
-        if (sTmCopyrightAlpha == 255) { // opaque
-            SET_GRAPH_NODE_LAYER(graphNode->flags, LAYER_OPAQUE);
-            gDPSetRenderMode(dlIter++, G_RM_AA_OPA_SURF, G_RM_AA_OPA_SURF2);
-        } else { // blend
-            SET_GRAPH_NODE_LAYER(graphNode->flags, LAYER_TRANSPARENT);
-            gDPSetRenderMode(dlIter++, G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
-        }
-        gSPDisplayList(dlIter++, &intro_seg7_dl_copyright_trademark); // draw model
-        gSPEndDisplayList(dlIter);
-
-        // Once the "Super Mario 64" logo has just about zoomed fully, fade in the "TM" and copyright text
-        if (sIntroFrameCounter >= 19) {
-            sTmCopyrightAlpha += 26;
-            if (sTmCopyrightAlpha > 255) {
-                sTmCopyrightAlpha = 255;
-            }
-        }
     }
     return dl;
 }

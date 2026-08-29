@@ -73,9 +73,9 @@ const LevelScript level_intro_splash_screen[] = {
 
     SET_MENU_MUSIC(/*seq*/ SEQ_SOUND_PLAYER),
     CALL(/*arg*/ LVL_INTRO_PLAY_ITS_A_ME_MARIO, /*func*/ lvl_intro_update),
-    SLEEP(/*frames*/ 75),
+    SLEEP(/*frames*/ 30),
     TRANSITION(/*transType*/ WARP_TRANSITION_FADE_INTO_COLOR, /*time*/ 16, /*color*/ 0x00, 0x00, 0x00),
-    SLEEP(/*frames*/ 16),
+    SLEEP(/*frames*/ 13),
 #endif
     UNLOAD_AREA(/*area*/ 1),
     CLEAR_LEVEL(),
