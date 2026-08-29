@@ -467,7 +467,7 @@ ALIGNED8 static const Texture texture_hud_char_mario_head[] = {
 };
 
 ALIGNED8 static const Texture texture_hud_char_star[] = {
-#include "textures/segment2/segment2.05C00.rgba16.inc.c"
+#include "textures/segment2/hud_star_custom.rgba16.inc.c"
 };
 
 ALIGNED8 static const Texture texture_ssk_hud_char_ssk_star[] = {

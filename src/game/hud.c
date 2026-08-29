@@ -407,9 +407,20 @@ void render_hud_breath_meter(void) {
  */
 void render_hud_mario_lives(void) {
     print_text_fmt_int(5,  0, "AIOBJ %d", gCurrHudType);
+    switch (gCurrHudType) {
+    default:
     print_text(30, HUD_TOP_Y, ","); // 'Mario Head' glyph
     print_text(46, HUD_TOP_Y, "*"); // 'X' glyph
     print_text_fmt_int(60, HUD_TOP_Y, "%d", gHudDisplay.lives);
+    break;
+
+    case 2:
+    print_text(30, HUD_TOP_Y, ","); // 'Mario Head' glyph
+    print_text(46, HUD_TOP_Y, "*"); // 'X' glyph
+    print_text_fmt_int(58, HUD_TOP_Y, "%d", gHudDisplay.lives);
+    break;
+
+    }
 }
 
 #ifdef VANILLA_STYLE_CUSTOM_DEBUG
@@ -439,7 +450,7 @@ switch (gCurrHudType) {
     case 2: // broll
     print_text(170, HUD_TOP_Y - 17, "$"); // 'Coin' glyph
     print_text(186, HUD_TOP_Y - 17, "*"); // 'X' glyph
-    print_text_fmt_int(200, HUD_TOP_Y - 17, "%02d", gHudDisplay.coins);
+    print_text_fmt_int(198, HUD_TOP_Y - 17, "%02d", gHudDisplay.coins);
     break;
 
     case 3:
@@ -468,7 +479,7 @@ switch (gCurrHudType) {
     case 2: // broll
     print_text(170, HUD_TOP_Y, "^"); // 'Star' glyph
     print_text(186, HUD_TOP_Y, "*"); // 'X' glyph
-    print_text_fmt_int(200, HUD_TOP_Y, "%02d", gHudDisplay.stars);
+    print_text_fmt_int(198, HUD_TOP_Y, "%02d", gHudDisplay.stars);
     break;
 
     case 3: // E3
