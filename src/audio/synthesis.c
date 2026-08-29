@@ -383,9 +383,6 @@ u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
         AUDIO_PROFILER_COMPLETE_AND_SWITCH(PROFILER_TIME_SUB_AUDIO_SEQUENCES_PROCESSING, PROFILER_TIME_SUB_AUDIO_SEQUENCES, PROFILER_TIME_SUB_AUDIO_SYNTHESIS);
         AUDIO_PROFILER_START_SHARED(PROFILER_TIME_SUB_AUDIO_SYNTHESIS, PROFILER_TIME_SUB_AUDIO_SYNTHESIS_ENVELOPE_REVERB);
 
-        if (gSynthesisReverb.useReverb) {
-            prepare_reverb_ring_buffer(chunkLen, gAudioUpdatesPerFrame - i);
-        }
         cmd = synthesis_do_one_audio_update((s16 *) aiBufPtr, chunkLen * 2, cmd, gAudioUpdatesPerFrame - i);
 
         AUDIO_PROFILER_COMPLETE_AND_SWITCH(PROFILER_TIME_SUB_AUDIO_SYNTHESIS_ENVELOPE_REVERB, PROFILER_TIME_SUB_AUDIO_SYNTHESIS, PROFILER_TIME_SUB_AUDIO_UPDATE);
