@@ -1,6 +1,6 @@
-#ifndef AI_OBJ_HELPER.H
-#define AI_OBJ_HELPER.H
+#ifndef AI_OBJ_HELPER_H 
+#define AI_OBJ_HELPER_H 
 
-extern s16 gCurrHudType;
+extern u32 gCurrHudType;
 
 #endif

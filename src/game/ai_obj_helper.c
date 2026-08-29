@@ -3,7 +3,7 @@
 #include "types.h"
 #include "sm64.h"
 
-s16 gCurrHudType = 0;
+u32 gCurrHudType = 0;
 //TODO: ADD OTHER VARS
 
 

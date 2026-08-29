@@ -60,6 +60,7 @@ static const LevelScript script_func_local_1[] = {
     OBJECT(/*model*/ MODEL_NONE, /*pos*/ -1024,  900,   717, /*angle*/ 0,    0, 0, /*behParam*/ 0x00260000, /*beh*/ bhvAirborneStarCollectWarp),
     OBJECT(/*model*/ MODEL_NONE, /*pos*/  2816, 1200,  -256, /*angle*/ 0,   90, 0, /*behParam*/ 0x00270000, /*beh*/ bhvAirborneStarCollectWarp),
     OBJECT(/*model*/ MODEL_NONE, /*pos*/  2816, 1200,  -256, /*angle*/ 0,  270, 0, /*behParam*/ 0x00280000, /*beh*/ bhvDeathWarp),
+    OBJECT(/*model*/ MODEL_MARIO, /*pos*/    0,    0,     0, /*angle*/ 0,  270, 0, /*behParam*/ 0x03000000, /*beh*/ bhvAiObject),
     WARP_NODE(/*id*/ 0x1E, /*destLevel*/ LEVEL_CASTLE, /*destArea*/ 0x01, /*destNode*/ 0x1E, /*flags*/ WARP_NO_CHECKPOINT),
     WARP_NODE(/*id*/ 0x1F, /*destLevel*/ LEVEL_CASTLE, /*destArea*/ 0x01, /*destNode*/ 0x1F, /*flags*/ WARP_NO_CHECKPOINT),
     WARP_NODE(/*id*/ 0x20, /*destLevel*/ LEVEL_CASTLE, /*destArea*/ 0x01, /*destNode*/ 0x20, /*flags*/ WARP_NO_CHECKPOINT),

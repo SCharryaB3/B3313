@@ -6,6 +6,8 @@
 #include "print.h"
 #include "segment2.h"
 
+#include "ai_obj_helper.h"
+
 /**
  * This file handles printing and formatting the colorful text that
  * appears when printing things such as "PRESS START".
@@ -293,7 +295,13 @@ s32 char_to_glyph_index(char c) {
     }
 
     if (c >= '0' && c <= '9') {
+        switch (gCurrHudType) {
+        default:
         return c - 48;
+
+        case 3:
+        return (c - '0') + GLYPH_VANILLA_0; // Set to 0 if you going to add
+        }
     }
 
     if (c == ' ') {
@@ -324,8 +332,18 @@ s32 char_to_glyph_index(char c) {
         return GLYPH_MINUS; // minus
     }
 
-    if (c == '*') {
-        return GLYPH_MULTIPLY; // x
+    if (c == '*') 
+        switch (gCurrHudType) {
+
+        default:
+        case 1:
+        return GLYPH_SSK_MULTIPLY;
+
+        case 2:
+        return GLYPH_MULTIPLY; // B-Roll Cross
+
+        case 3:
+        return GLYPH_VANILLA_MULTIPLY;
     }
 
     if (c == '$') {
@@ -345,7 +363,13 @@ s32 char_to_glyph_index(char c) {
     }
 
     if (c == '^') {
-        return GLYPH_STAR; // star
+    switch (gCurrHudType) {
+	    default:
+        return GLYPH_SSK_STAR; // ssk star as default is should be good
+
+        case 2:
+        return GLYPH_STAR;
+        }
     }
 
     if (c == '.') {

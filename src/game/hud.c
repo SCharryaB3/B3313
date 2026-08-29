@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include "ai_obj_helper.h"
+
 /* @file hud.c
  * This file implements HUD rendering and power meter animations.
  * That includes stars, lives, coins, camera status, power meter, timer
@@ -404,6 +406,7 @@ void render_hud_breath_meter(void) {
  * Renders the amount of lives Mario has.
  */
 void render_hud_mario_lives(void) {
+    print_text_fmt_int(5,  0, "AIOBJ %d", gCurrHudType);
     print_text(30, HUD_TOP_Y, ","); // 'Mario Head' glyph
     print_text(46, HUD_TOP_Y, "*"); // 'X' glyph
     print_text_fmt_int(60, HUD_TOP_Y, "%d", gHudDisplay.lives);
@@ -425,9 +428,28 @@ void render_debug_mode(void) {
  * Renders the amount of coins collected.
  */
 void render_hud_coins(void) {
+
+switch (gCurrHudType) {
+    default: // ssk and decemba
     print_text(170, HUD_TOP_Y - 17, "$"); // 'Coin' glyph
     print_text(186, HUD_TOP_Y - 17, "*"); // 'X' glyph
     print_text_fmt_int(200, HUD_TOP_Y - 17, "%d", gHudDisplay.coins);
+    break;
+
+    case 2: // broll
+    print_text(170, HUD_TOP_Y - 17, "$"); // 'Coin' glyph
+    print_text(186, HUD_TOP_Y - 17, "*"); // 'X' glyph
+    print_text_fmt_int(200, HUD_TOP_Y - 17, "%02d", gHudDisplay.coins);
+    break;
+
+    case 3:
+    print_text(GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(81), HUD_TOP_Y, "$");      // 'Coin' glyph
+    print_text(GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(81) + 16, HUD_TOP_Y, "*"); // 'X' glyph
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(81 - 30), HUD_TOP_Y, "%d",
+                       gHudDisplay.coins);
+    break;
+
+    }
 }
 
 /**
@@ -435,9 +457,31 @@ void render_hud_coins(void) {
  * Disables "X" glyph when Mario has 100 stars or more.
  */
 void render_hud_stars(void) {
+
+switch (gCurrHudType) {
+    default: // ssk & decemba
     print_text(170, HUD_TOP_Y, "^"); // 'Star' glyph
     print_text(186, HUD_TOP_Y, "*"); // 'X' glyph
     print_text_fmt_int(200, HUD_TOP_Y, "%d", gHudDisplay.stars);
+    break;
+
+    case 2: // broll
+    print_text(170, HUD_TOP_Y, "^"); // 'Star' glyph
+    print_text(186, HUD_TOP_Y, "*"); // 'X' glyph
+    print_text_fmt_int(200, HUD_TOP_Y, "%02d", gHudDisplay.stars);
+    break;
+
+    case 3: // E3
+    if (gHudFlash == 1 && gGlobalTimer & 0x08) {
+        return;
+    }
+
+    print_text(170, HUD_TOP_Y, "^");      // 'Star' glyph
+    print_text(186, HUD_TOP_Y, "*");       // 'X' glyph
+    print_text_fmt_int(200, HUD_TOP_Y, "%d", gHudDisplay.stars);
+    break;
+
+    }
 }
 
 /**

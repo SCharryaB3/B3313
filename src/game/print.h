@@ -28,6 +28,19 @@ enum PrintfGlyphs {
     GLYPH_APOSTROPHE      = 56,
     GLYPH_DOUBLE_QUOTE    = 57,
     GLYPH_UMLAUT          = 58,
+    GLYPH_VANILLA_0       = 59,
+    GLYPH_VANILLA_1       = 60,
+    GLYPH_VANILLA_2       = 61,
+    GLYPH_VANILLA_3       = 62,
+    GLYPH_VANILLA_4       = 63,
+    GLYPH_VANILLA_5       = 64,
+    GLYPH_VANILLA_6       = 65,
+    GLYPH_VANILLA_7       = 66,
+    GLYPH_VANILLA_8       = 67,
+    GLYPH_VANILLA_9       = 68,
+    GLYPH_VANILLA_MULTIPLY = 69, // nice.
+    GLYPH_SSK_STAR        = 70,
+    GLYPH_SSK_MULTIPLY    = 71,
 };
 
 void print_text_fmt_int(s32 x, s32 y, const char *str, s32 n);

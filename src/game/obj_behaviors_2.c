@@ -747,7 +747,9 @@ static void treat_far_home_as_mario(f32 threshold) {
         }
     }
 }
-
+//AI OBJ
+#include "behaviors/ai_object.inc.c" // Trolling
+//END
 #include "behaviors/koopa.inc.c" // TODO: Text arg field name
 #include "behaviors/pokey.inc.c"
 #include "behaviors/swoop.inc.c"
