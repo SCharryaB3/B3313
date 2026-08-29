@@ -1,21 +1,35 @@
 // mushroom_1up.inc.c
 
 void bhv_1up_interact(void) {
+//ADD: Switch that managed by BhvParam1
+u8 ModeFlags = GET_BPARAM1(o->oBehParams);
+
     if (obj_check_if_collided_with_object(o, gMarioObject)) {
-        play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);
-#ifdef MUSHROOMS_HEAL
-        gMarioState->healCounter   = 31;
-#ifdef BREATH_METER
-        gMarioState->breathCounter = 31;
-#endif
-#endif
-#ifdef ENABLE_LIVES
-        gMarioState->numLives++;
-#endif
-        o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
-#if ENABLE_RUMBLE
-        queue_rumble_data(5, 80);
-#endif
+
+    switch(ModeFlags) {
+        case 0: //normal 1up
+            play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);
+            gMarioState->numLives++;
+            o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
+            #if ENABLE_RUMBLE
+            queue_rumble_data(5, 80);
+            #endif
+        break;
+
+        case 1: //deadly
+            play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);
+            gMarioState->hurtCounter = 128;
+            o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
+            #if ENABLE_RUMBLE
+            queue_rumble_data(5, 80);
+            #endif
+        break;
+
+        case 2: //crashly
+             *((u32*)0) = 0; //crashma
+        break;
+
+        } //ADD END
     }
 }
 
