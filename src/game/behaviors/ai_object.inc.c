@@ -1,4 +1,4 @@
-#include "../ai_obj_helper.h"
+#include "../personalization_helpers.h"
 
 void bhv_ai_object_main(void) {
     u32 AiObjBhvVar = 0;

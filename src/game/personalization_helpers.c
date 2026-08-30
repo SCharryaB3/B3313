@@ -45,6 +45,14 @@
 // for the OS code
 // #include "lib/src/libultra_internal.h"
 
+
+// AI OBJ
+u32 gCurrHudType = 0;
+//TODO: ADD OTHER VARS
+
+
+// so what? no functions there.
+
 s32 act_squatkick(struct MarioState *m) {
 	// m->actionState should be zero by default
 

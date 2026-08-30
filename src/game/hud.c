@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "ai_obj_helper.h"
+#include "personalization_helpers.h"
 
 /* @file hud.c
  * This file implements HUD rendering and power meter animations.
