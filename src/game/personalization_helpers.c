@@ -51,12 +51,201 @@ u32 gCurrHudType = 0;
 //TODO: ADD OTHER VARS
 
 
-// so what? no functions there.
+// HUE SHIFT THINGY
+typedef struct RgbColor
+{
+	u8 r;
+	u8 g;
+	u8 b;
+} RgbColor;
+
+typedef struct HsvColor
+{
+	u8 h;
+	u8 s;
+	u8 v;
+} HsvColor;
+
+RgbColor HsvToRgb(HsvColor hsv)
+{
+    RgbColor rgb;
+    u8 region, remainder, p, q, t;
+
+    if (hsv.s == 0)
+    {
+        rgb.r = hsv.v;
+        rgb.g = hsv.v;
+        rgb.b = hsv.v;
+        return rgb;
+    }
+
+    region = hsv.h / 43;
+    remainder = (hsv.h - (region * 43)) * 6; 
+
+    p = (hsv.v * (255 - hsv.s)) >> 8;
+    q = (hsv.v * (255 - ((hsv.s * remainder) >> 8))) >> 8;
+    t = (hsv.v * (255 - ((hsv.s * (255 - remainder)) >> 8))) >> 8;
+
+    switch (region)
+    {
+        case 0:
+            rgb.r = hsv.v; rgb.g = t; rgb.b = p;
+            break;
+        case 1:
+            rgb.r = q; rgb.g = hsv.v; rgb.b = p;
+            break;
+        case 2:
+            rgb.r = p; rgb.g = hsv.v; rgb.b = t;
+            break;
+        case 3:
+            rgb.r = p; rgb.g = q; rgb.b = hsv.v;
+            break;
+        case 4:
+            rgb.r = t; rgb.g = p; rgb.b = hsv.v;
+            break;
+        default:
+            rgb.r = hsv.v; rgb.g = p; rgb.b = q;
+            break;
+    }
+
+    return rgb;
+}
+
+HsvColor RgbToHsv(RgbColor rgb)
+{
+    HsvColor hsv;
+    u8 rgbMin, rgbMax;
+
+    rgbMin = rgb.r < rgb.g ? (rgb.r < rgb.b ? rgb.r : rgb.b) : (rgb.g < rgb.b ? rgb.g : rgb.b);
+    rgbMax = rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
+
+    hsv.v = rgbMax;
+    if (hsv.v == 0)
+    {
+        hsv.h = 0;
+        hsv.s = 0;
+        return hsv;
+    }
+
+    hsv.s = 255 * ((float)rgbMax - rgbMin) / hsv.v;
+    if (hsv.s == 0)
+    {
+        hsv.h = 0;
+        return hsv;
+    }
+
+    if (rgbMax == rgb.r)
+        hsv.h = 0 + 43 * (rgb.g - rgb.b) / (rgbMax - rgbMin);
+    else if (rgbMax == rgb.g)
+        hsv.h = 85 + 43 * (rgb.b - rgb.r) / (rgbMax - rgbMin);
+    else
+        hsv.h = 171 + 43 * (rgb.r - rgb.g) / (rgbMax - rgbMin);
+
+    return hsv;
+}
+
+
+void hueRotateRGBA5551(u16 *ptr, int size, int hue) {
+	int i;
+	RgbColor rgbColor;
+	HsvColor hsvColor;
+	u16 value;
+	
+	for (i = 0; i < size; i++) {
+		value = *ptr;
+		
+		rgbColor.r = (value >> 11) << 3;
+		rgbColor.g = ((value >> 6) & 0x1F) << 3;
+		rgbColor.b = ((value >> 1) & 0x1F) << 3;
+		
+		hsvColor = RgbToHsv(rgbColor);
+		hsvColor.h = (u8)(hsvColor.h + hue);
+		rgbColor = HsvToRgb(hsvColor);
+		
+		*ptr = (
+			// R
+			((rgbColor.r >> 3) << 11)
+			// G
+			+ ((rgbColor.g >> 3) << 6)
+			// B
+			+ ((rgbColor.b >> 3) << 1)
+			// A
+			+ (value & 1)
+		);
+		
+		ptr++;
+	}
+}
+
+void rgbMultiplyRGBA16(u16 *ptr, int size, float _r, float _g, float _b) {
+	int i;
+	RgbColor rgbColor;
+	u16 value;
+	
+	for (i = 0; i < size; i++) {
+		value = *ptr;
+		
+		rgbColor.r = (value >> 11) << 3;
+		rgbColor.g = ((value >> 6) & 0x1F) << 3;
+		rgbColor.b = ((value >> 1) & 0x1F) << 3;
+		
+        rgbColor.r *= _r;
+        rgbColor.g *= _g;
+        rgbColor.b *= _b;
+		
+		*ptr = (
+			// R
+			((rgbColor.r >> 3) << 11)
+			// G
+			+ ((rgbColor.g >> 3) << 6)
+			// B
+			+ ((rgbColor.b >> 3) << 1)
+			// A
+			+ (value & 1)
+		);
+		
+		ptr++;
+	}
+}
+
+void texCopyRGBA16(u16 *ptrFrom, u16 *ptrTo, int size) {
+	int i;
+	
+	for (i = 0; i < size; i++) {
+		*ptrTo = *ptrFrom;
+        
+        ptrFrom++;
+        ptrTo++;
+	}
+}
+
+u32 modelLoadedBits[8];
+
+s32 get_model_loaded(u8 model) {
+    return modelLoadedBits[model >> 5] & (1 << (model & 0x1F));
+}
+
+void set_model_loaded(u8 model, s32 isLoaded) {
+    if (isLoaded) {
+        modelLoadedBits[model >> 5] |= (1 << (model & 0x1F));
+    }
+    else {
+        modelLoadedBits[model >> 5] &= ~(1 << (model & 0x1F));
+    }
+}
+
+void clear_model_loaded() {
+    s32 i;
+    
+    for (i = 0; i < 8; i++) {
+        modelLoadedBits[i] = 0;
+    }
+}
 
 s32 act_squatkick(struct MarioState *m) {
 	// m->actionState should be zero by default
 
-	// set_mario_animation (m, MARIO_ANIM_SQUATKICKING); // TODO: add anim
+	set_mario_animation (m, MARIO_ANIM_SQUATKICKING);
 
 	if (m->actionState == 0) 
 	{

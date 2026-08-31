@@ -1470,11 +1470,7 @@ s32 act_crouch_slide(struct MarioState *m) {
     }
 
     if (m->input & INPUT_B_PRESSED) {
-        if (m->forwardVel >= 10.0f) {
-            return set_mario_action(m, ACT_SLIDE_KICK, 0);
-        } else {
-            return set_mario_action(m, ACT_MOVE_PUNCHING, 0x9);
-        }
+        return set_mario_action(m, ACT_SQUATKICK, 9);
     }
 
     if (m->input & INPUT_A_PRESSED) {

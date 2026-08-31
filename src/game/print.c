@@ -300,6 +300,7 @@ s32 char_to_glyph_index(char c) {
         return c - 48;
 
         case 3:
+        case 4:
         return (c - '0') + GLYPH_VANILLA_0; // Set to 0 if you going to add
         }
     }
@@ -343,6 +344,7 @@ s32 char_to_glyph_index(char c) {
         return GLYPH_MULTIPLY; // B-Roll Cross
 
         case 3:
+        case 4:
         return GLYPH_VANILLA_MULTIPLY;
     }
 

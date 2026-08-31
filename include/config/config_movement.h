@@ -41,7 +41,7 @@
 /**
  * Disables fall damage.
  */
-#define NO_FALL_DAMAGE
+// #define NO_FALL_DAMAGE
 
 /**
  * Disables the scream that mario makes when falling off a great height (this is separate from actual fall damage).
@@ -61,7 +61,7 @@
 /**
  * Disables Mario getting stuck in snow and sand when falling.
  */
-// #define NO_GETTING_BURIED
+#define NO_GETTING_BURIED
 
 /**
  * Prevents hands-free holding.
@@ -91,7 +91,7 @@
 /**
  * Disables bonks when ground pounding next to a wall.
  */
-#define DISABLE_GROUNDPOUND_BONK
+// #define DISABLE_GROUNDPOUND_BONK
 
 /**
  * Allows Mario to jump kick on steep surfaces that are set to be non slippery, instead of being forced to dive.
@@ -134,7 +134,7 @@
  * be interrupted with text
  * Uncomment this to fix this bug, and frustrate speedrunners
  */
-#define BUGFIX_DIALOG_TIME_STOP
+// #define BUGFIX_DIALOG_TIME_STOP
 
 /**
  * Inertia defines; allow Mario to preserve his momemtum when leaving moving platforms.

@@ -12,6 +12,10 @@ static struct ObjectHitbox sCollectStarHitbox = {
     /* hurtboxHeight:     */ 0,
 };
 
+#include "../personalization_helpers.h"
+
+extern Texture star_seg3_texture_0302A6F0[];
+
 void bhv_collect_star_init(void) {
     u8 starId = GET_BPARAM1(o->oBehParams);
 #ifdef GLOBAL_STAR_IDS

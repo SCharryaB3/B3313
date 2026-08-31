@@ -3,7 +3,7 @@
 // 0x0302A6D8
 
 // 0x0302A6F0
-ALIGNED8 static const Texture star_seg3_texture_0302A6F0[] = {
+ALIGNED8 const Texture star_seg3_texture_0302A6F0[] = {
 #include "actors/star/star_surface.rgba16.inc.c"
 };
 

@@ -1264,31 +1264,19 @@ u32 interact_bully(struct MarioState *m, UNUSED u32 interactType, struct Object 
 }
 
 u32 interact_shock(struct MarioState *m, UNUSED u32 interactType, struct Object *obj) {
-    if (!sInvulnerable && !(m->flags & MARIO_VANISH_CAP)
-        && !(obj->oInteractionSubtype & INT_SUBTYPE_DELAY_INVINCIBILITY)) {
-        u32 actionArg = (m->action & (ACT_FLAG_AIR | ACT_FLAG_ON_POLE | ACT_FLAG_HANGING)) == 0;
-
-        obj->oInteractStatus = INT_STATUS_INTERACTED | INT_STATUS_ATTACKED_MARIO;
-        m->interactObj = obj;
-
-        take_damage_from_interact_object(m);
-        play_sound(SOUND_MARIO_ATTACKED, m->marioObj->header.gfx.cameraToObject);
-#if ENABLE_RUMBLE
-        queue_rumble_data(70, 60);
-#endif
-
-        if (m->action & (ACT_FLAG_SWIMMING | ACT_FLAG_METAL_WATER)) {
-            return drop_and_set_mario_action(m, ACT_WATER_SHOCKED, 0);
-        } else {
-            update_mario_sound_and_camera(m);
-            return drop_and_set_mario_action(m, ACT_SHOCKED, actionArg);
-        }
+    play_sound_if_no_flag(m, SOUND_MARIO_ATTACKED, MARIO_ACTION_SOUND_PLAYED);
+    play_sound(SOUND_MOVING_SHOCKED, m->marioObj->header.gfx.cameraToObject);
+    set_camera_shake_from_hit(SHAKE_SHOCK);
+    if (m->actionTimer == 0 || set_mario_animation(m, MARIO_ANIM_SHOCKED) == 0) {
+        m->actionTimer++;
+        m->flags |= MARIO_METAL_SHOCK;
     }
 
-    if (!(obj->oInteractionSubtype & INT_SUBTYPE_DELAY_INVINCIBILITY)) {
-        sDelayInvincTimer = TRUE;
+    if (m->actionTimer >= 4) {
+        m->invincTimer = 30;
+        set_mario_action(m, m->health < 0x0100 ? ACT_ELECTROCUTION : ACT_IDLE, 0);
     }
-
+    stationary_ground_step(m);
     return FALSE;
 }
 
