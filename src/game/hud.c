@@ -405,8 +405,10 @@ void render_hud_breath_meter(void) {
 /**
  * Renders the amount of lives Mario has.
  */
+
 void render_hud_mario_lives(void) {
     print_text_fmt_int(5,  0, "AIOBJ %d", gCurrHudType);
+
     switch (gCurrHudType) {
     default:
     print_text(30, HUD_TOP_Y, ","); // 'Mario Head' glyph
@@ -417,7 +419,7 @@ void render_hud_mario_lives(void) {
     case 2:
     print_text(30, HUD_TOP_Y, ","); // 'Mario Head' glyph
     print_text(46, HUD_TOP_Y, "*"); // 'X' glyph
-    print_text_fmt_int(58, HUD_TOP_Y, "%d", gHudDisplay.lives);
+    print_text_fmt_int(58, HUD_TOP_Y, "%02d", gHudDisplay.lives);
     break;
 
     }
