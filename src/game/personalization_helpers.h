@@ -6,6 +6,10 @@
 
 s32 set_mario_animation_then_check_for_climbable_wall(struct MarioState *m, s32 animation);
 s32 act_electric_idle(struct MarioState *m);
+s32 set_mario_animation_then_check_for_climbable_wall(struct MarioState *m, s32 animation);
+s32 act_squatkick(struct MarioState *m);
+s32 act_climbing_wall(struct MarioState *m);
+
 void hueRotateRGBA5551(u16 *ptr, int size, int hue);
 void rgbMultiplyRGBA16(u16 *ptr, int size, float _r, float _g, float _b);
 void texCopyRGBA16(u16 *ptrFrom, u16 *ptrTo, int size);
