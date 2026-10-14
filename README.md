@@ -1,5 +1,4 @@
-Potential project to port some trollengine stuff (from a2) to decomp. Idk if this will go anywhere, if you want the repo name "B3313", js ask  
-
+Potential project to port as much as possible trollengine stuff (from a2) to decomp. Idk if this will go anywhere, DUDE IM SO BITTED IM TRYING TO WORK IN TUPTPUTPU AND FLOWSHOOR I CANT WORK ON SO THAT ALLA T ONCE SKHWLIUGELUIGKWYKUYSGKUYDGIYUGDKUGEKUYKEUGKEUGUEK I WANNA MAKE A PLAN BUT I CANT SGLYXGKYUEGMUYWJGSMYGMJYXGMUWJUYYWTJJDHYKSYKQKYUSGIKYSKIUHS
 
 check the txt file for progress on funcs and stuff  
 
