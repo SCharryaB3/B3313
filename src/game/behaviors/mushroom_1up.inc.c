@@ -25,7 +25,14 @@ u8 ModeFlags = GET_BPARAM1(o->oBehParams);
             #endif
         break;
 
-        case 2: //crashly
+        case 2: //do fucking nothing but play souds
+            play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);;
+            #if ENABLE_RUMBLE
+            queue_rumble_data(5, 80);
+            #endif
+        break;
+
+        case 3: //crashly
              *((u32*)0) = 0; //crashma
         break;
 
